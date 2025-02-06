@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.1.0
+    container_name: keycloak-dev
+    command: start-dev --import-realm
+    depends_on:
+      - keycloak-db
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_HOSTNAME=localhost
+      - KC_HTTP_ENABLED=true
+      - KC_LOG_LEVEL=INFO
+      - KC_CACHE=local
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://keycloak-db:5432/${POSTGRES_DB}
+      - KC_DB_USERNAME=${POSTGRES_USER}
+      - KC_DB_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
+      - ./themes:/opt/keycloak/themes
+    ports:
+      - "8080:8080"
+      - "8787:8787"
+    networks:
+      - keycloak-dev-network
+
+  keycloak-db:
+    image: postgres:17.1-bullseye
+    container_name: keycloak-db
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - keycloak-dev-network
+
+volumes:
+  postgres_data:
+
+networks:
+  keycloak-dev-network:
+    driver: bridge
