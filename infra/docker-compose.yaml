@@ -1,5 +1,7 @@
 version: "3.8"
 
+name: keycloak
+
 services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.1.0
