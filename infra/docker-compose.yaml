@@ -3,6 +3,16 @@ version: "3.8"
 name: keycloak
 
 services:
+  keycloak_app:
+    container_name: keycloak_app
+    build:
+      context: ..
+    command: yarn start
+    ports:
+      - "3000:3000"
+    depends_on:
+      - keycloak
+
   keycloak:
     image: quay.io/keycloak/keycloak:26.1.0
     container_name: keycloak-dev
