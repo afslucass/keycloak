@@ -2,24 +2,15 @@ import "dotenv/config";
 import express from "express";
 import session from "express-session";
 
-// import { keycloak, memoryStore } from "./keycloak";
 import { errorHandler } from "./middleware/error-handler";
-// import protectedRoutes from "./routes/protected-routes";
-import unprotectedRoutes from "./routes/unprotected-routes";
+import { Issuer, Strategy } from "openid-client";
+
 import cors from "cors";
-import KeycloakConnect from "keycloak-connect";
+import passport from "passport";
 
 const app = express();
 const PORT = process.env.PORT;
 
-app.use(
-  cors({
-    origin: "*", // ou '*' para desenvolvimento
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true,
-    allowedHeaders: "Authorization, Content-Type",
-  })
-);
 app.use(express.json());
 
 const memoryStore = new session.MemoryStore();
@@ -31,30 +22,16 @@ app.use(
     store: memoryStore,
   })
 );
-const keycloak = new KeycloakConnect(
-  { store: memoryStore },
-  {
-    "bearer-only": true,
-    realm: "app",
-    "auth-server-url": "http://dev:8080/",
-    "ssl-required": "external",
-    resource: "service-app",
-    "confidential-port": 0,
-  }
-);
-app.use(keycloak.middleware());
 
-app.post("/send-data", keycloak.protect("READ"), (req, res) => {
-  console.log(`DEU BOM`);
-  console.log(req.headers);
-  res.json({});
-});
+// mano, estou morgando, no caso, o access token ja esta sendo gerado no postman, aqui na rota
+// do bff, eh so validar o access token usando a public key do kewycloak, se for valido esta autenticado.
+// usa lib do jwt para validar.
 
 // app.use(unprotectedRoutes);
 app.use(errorHandler);
 
 app.get("/", (_req: any, res: any) => {
-  res.send("Hello World!");
+  res.send("Erro!");
 });
 
 app.listen(PORT, () => {
