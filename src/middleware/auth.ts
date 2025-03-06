@@ -8,11 +8,15 @@ export const auth = (req: Request<any>, res: Response, next: NextFunction) => {
 
   if (token) {
     try {
-      jwt.verify(token, PUBLIC_KEY!, { algorithms: ["RS256"] });
+      const decoded = jwt.verify(token, PUBLIC_KEY!, { algorithms: ["RS256"] });
+
+      // da para agent acessar os valores dentro do jwt, fazer autorizacao, etc
+      console.log((decoded as any).scope);
     } catch (err: any) {
       next(new AuthenticationError(err.message));
     }
     next();
+    return;
   }
   next(new AuthenticationError());
 };
